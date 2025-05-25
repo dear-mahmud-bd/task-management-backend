@@ -2,7 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-export type UserDocument = User & Document;
+export interface UserDocument extends User, Document {
+  matchPassword(enteredPassword: string): Promise<boolean>;
+}
 
 @Schema({ timestamps: true })
 export class User {
@@ -29,15 +31,19 @@ export class User {
 
   @Prop({ default: true })
   isActive: boolean;
-
-  // method: not stored in DB, just available in class
-  async matchPassword(enteredPassword: string): Promise<boolean> {
-    return await bcrypt.compare(enteredPassword, this.password);
-  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-// Pre-save hook to hash password
+
+// ✅ Add this method on schema.methods (NOT in the class)
+UserSchema.methods.matchPassword = async function (
+  this: UserDocument, // 👈 Fixes 'this is any'
+  enteredPassword: string,
+): Promise<boolean> {
+  return await bcrypt.compare(enteredPassword, this.password); // now properly typed
+};
+
+// ✅ Hash password before save
 UserSchema.pre<UserDocument>('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
