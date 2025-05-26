@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -70,17 +69,20 @@ export class UserService {
     return { status: true, token, user: safeUser };
   }
 
-  findAll() {
-    return `This action returns all user`;
+  // Get all teams (all-members) (admin only)
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    const users = await this.userModel.find().select('-password');
+    return users;
   }
 
+  // admin and developer
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  // update(id: number, updateUserDto: UpdateUserDto) {
+  //   return `This action updates a #${id} user`;
+  // }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
