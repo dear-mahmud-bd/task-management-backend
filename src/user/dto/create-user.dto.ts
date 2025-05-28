@@ -20,7 +20,7 @@ export class CreateUserDto {
   @IsEnum(['developer', 'admin'], {
     message: 'Role must be either "developer" or "admin"',
   })
-  role: 'developer' | 'admin';
+  role: 'developer' | 'admin' | 'manager';
 
   @IsNotEmpty()
   @IsEmail()

@@ -14,6 +14,16 @@ $ npm install
 # development
 $ npm run start
 
+
+6833321308124f4f96f47066
+683332ff08124f4f96f47068
+68333b380f4db75bbf2ec75d
+68333b640f4db75bbf2ec75f
+68333ba40f4db75bbf2ec761
+68333c6c0f4db75bbf2ec765
+
+
+
 # watch mode
 $ npm run start:dev
 
