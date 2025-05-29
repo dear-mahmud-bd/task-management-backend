@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TaskModule } from './task/task.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TaskModule } from './task/task.module';
 
     UserModule,
     TaskModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

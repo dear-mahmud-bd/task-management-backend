@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,6 +11,10 @@ import { User, UserDocument } from './schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response } from 'express';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import * as bcrypt from 'bcrypt';
+import { ActivateUserDto } from './dto/activate-user.dto';
 
 @Injectable()
 export class UserService {
@@ -52,6 +57,7 @@ export class UserService {
     // Create JWT and attach to cookie
     const token = this.jwtService.sign({
       id: user._id,
+      name: user.name,
       email: user.email,
       role: user.role,
     });
@@ -75,16 +81,50 @@ export class UserService {
     return users;
   }
 
-  // admin and developer
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  // user Updated Profile...
+  async updateUserProfile(id: string, dto: UpdateUserDto) {
+    const user = await this.userModel.findById(id);
+    if (!user) return null;
+
+    user.name = dto.name || user.name;
+    user.title = dto.title || user.title;
+    user.role = dto.role || user.role;
+
+    const updatedUser = await user.save();
+    // updatedUser.password = undefined;
+    return updatedUser;
   }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  // update password...
+  async changeUserPassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(dto.password, salt);
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    await user.save();
+    return {
+      status: true,
+      message: 'Password changed successfully.',
+    };
+  }
+
+  //activate user Profile...
+  async activateUserProfile(id: string, dto: ActivateUserDto) {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.isActive = dto.isActive;
+    await user.save();
+
+    return {
+      status: true,
+      message: `User account has been ${
+        user.isActive ? 'activated' : 'disabled'
+      }`,
+    };
   }
 }
