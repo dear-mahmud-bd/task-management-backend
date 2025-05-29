@@ -15,5 +15,6 @@ import {
   ],
   controllers: [NotificationController],
   providers: [NotificationService],
+  exports: [MongooseModule],
 })
 export class NotificationModule {}

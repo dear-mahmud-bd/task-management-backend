@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { Activity, ActivitySchema } from './activity.schema';
 
 export type TaskDocument = Task & Document;
 
@@ -20,36 +21,13 @@ export class Task {
 
   @Prop({
     type: String,
-    enum: ['todo', 'in progress', 'completed'],
+    enum: ['todo', 'in_progress', 'completed'],
     default: 'todo',
   })
   stage: string;
 
-  @Prop([
-    {
-      type: {
-        type: String,
-        enum: [
-          'assigned',
-          'started',
-          'in progress',
-          'bug',
-          'completed',
-          'commented',
-        ],
-        default: 'assigned',
-      },
-      activity: { type: String },
-      date: { type: Date, default: () => new Date() },
-      by: { type: Types.ObjectId, ref: 'User' },
-    },
-  ])
-  activities: {
-    type: string;
-    activity: string;
-    date: Date;
-    by: Types.ObjectId;
-  }[];
+  @Prop({ type: [ActivitySchema] })
+  activities: Activity[];
 
   @Prop([
     {

@@ -23,7 +23,7 @@ export class CreateTaskDto {
   priority?: string;
 
   @IsOptional()
-  @IsEnum(['todo', 'in progress', 'completed'])
+  @IsEnum(['todo', 'in_progress', 'completed'])
   stage?: string;
 
   @IsOptional()

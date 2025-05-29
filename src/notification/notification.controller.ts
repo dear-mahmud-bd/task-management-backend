@@ -28,8 +28,8 @@ export class NotificationController {
   // @UseGuards(JwtAuthGuard)
   @Get()
   async getUserNotifications(@Req() req: Request) {
-    const userId = req.user['userId'] as string;
-    return this.notificationService.getUserNotifications(userId);
+    const userId = req.user?.id;
+    return this.notificationService.getUserNotifications(userId as string);
   }
 
   // mark as notification read ...

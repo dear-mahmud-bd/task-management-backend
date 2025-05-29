@@ -4,7 +4,10 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { NotificationDocument } from './schemas/notification.schema';
+import {
+  NotificationDocument,
+  Notification,
+} from './schemas/notification.schema';
 
 @Injectable()
 export class NotificationService {

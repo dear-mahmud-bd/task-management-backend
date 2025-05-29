@@ -6,7 +6,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   HttpCode,
   UsePipes,
   ValidationPipe,
@@ -70,7 +69,7 @@ export class UserController {
           : userId;
 
     const updatedUser = await this.userService.updateUserProfile(
-      id,
+      id as string,
       updateUserDto,
     );
 
@@ -88,8 +87,8 @@ export class UserController {
   // update password
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
-  async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
-    const userId = (req.user as any).userId;
+  async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
+    const userId = req.user?.id as string;
     return await this.userService.changeUserPassword(userId, dto);
   }
 
