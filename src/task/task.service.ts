@@ -17,6 +17,7 @@ import { Task, TaskDocument } from './schemas/task.schema';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Notification } from 'src/notification/schemas/notification.schema';
 import { CreateSubTaskDto } from './dto/create-subtask.dto';
+import { UpdateTaskStageDto } from './dto/update-task-stage.dto';
 
 @Injectable()
 export class TaskService {
@@ -94,6 +95,49 @@ export class TaskService {
       }
       console.error('Task creation failed:', error);
       throw new InternalServerErrorException('Task creation failed');
+    }
+  }
+
+  // update task
+  async updateTask(id: string, dto: UpdateTaskDto): Promise<void> {
+    const task = await this.taskModel.findById(id);
+    if (!task) throw new NotFoundException('Task not found');
+
+    const { title, date, team, stage, priority, assets, links, description } =
+      dto;
+
+    // Split links if provided
+    if (links !== undefined) {
+      task.links = links;
+    }
+
+    if (title !== undefined) task.title = title;
+    if (date !== undefined) task.date = new Date(date);
+    if (priority !== undefined) task.priority = priority.toLowerCase();
+    if (assets !== undefined) task.assets = assets;
+    if (stage !== undefined) task.stage = stage.toLowerCase();
+    if (team !== undefined)
+      task.team = team.map((id) => new Types.ObjectId(id));
+    if (description !== undefined) task.description = description;
+
+    await task.save();
+  }
+
+  // update task stage
+  async updateTaskStage(
+    id: string,
+    updateTaskStageDto: UpdateTaskStageDto,
+  ): Promise<void> {
+    const { stage } = updateTaskStageDto;
+    const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    task.stage = stage.toLowerCase();
+    try {
+      await task.save();
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -254,9 +298,42 @@ export class TaskService {
     task.subTasks.push(newSubTask);
     await task.save();
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+
+  // update subtask stage
+  async updateSubTaskStage(
+    taskId: string,
+    subTaskId: string,
+    status: boolean,
+  ): Promise<void> {
+    const updatedTask = await this.taskModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(taskId),
+        'subTasks._id': new Types.ObjectId(subTaskId),
+      },
+      {
+        $set: {
+          'subTasks.$.isCompleted': status,
+        },
+      },
+      { new: true },
+    );
+    if (!updatedTask) {
+      throw new NotFoundException('Task or SubTask not found');
+    }
+  }
+
+  // delete task to the trash
+  async trashTask(id: string): Promise<void> {
+    const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    try {
+      task.isTrashed = true;
+      await task.save();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   remove(id: number) {

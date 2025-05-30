@@ -6,7 +6,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
   Req,
   UnauthorizedException,
@@ -14,6 +13,7 @@ import {
   HttpStatus,
   Query,
   HttpCode,
+  Put,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -21,12 +21,14 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { CreateSubTaskDto } from './dto/create-subtask.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskStageDto } from './dto/update-task-stage.dto';
 
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  // add task
+  // add/create task
   @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
@@ -34,6 +36,39 @@ export class TaskController {
     const userId = req.user.id as string;
     console.log(userId);
     return await this.taskService.create(dto, userId);
+  }
+
+  // update a task
+  @Put('update/:id')
+  @HttpCode(200)
+  async updateTask(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ) {
+    try {
+      console.log(id);
+      await this.taskService.updateTask(id, updateTaskDto);
+      return {
+        status: true,
+        message: 'Task updated successfully.',
+      };
+    } catch (error) {
+      throw new HttpException(error.message as string, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  // update task-stage
+  @Patch('update-stage/:id')
+  @HttpCode(200)
+  async updateTaskStage(
+    @Param('id') id: string,
+    @Body() updateTaskStageDto: UpdateTaskStageDto,
+  ) {
+    await this.taskService.updateTaskStage(id, updateTaskStageDto);
+    return {
+      status: true,
+      message: 'Task stage changed successfully.',
+    };
   }
 
   // add task activity...
@@ -122,8 +157,33 @@ export class TaskController {
     };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(+id);
+  // update subtask status...
+  @Patch('subtasks/status/:taskId/:subTaskId')
+  @HttpCode(HttpStatus.OK)
+  async updateSubTaskStage(
+    @Param('taskId') taskId: string,
+    @Param('subTaskId') subTaskId: string,
+    @Body('status') status: boolean,
+  ) {
+    await this.taskService.updateSubTaskStage(taskId, subTaskId, status);
+
+    return {
+      status: true,
+      message: status
+        ? 'Task has been marked completed'
+        : 'Task has been marked uncompleted',
+    };
+  }
+
+  // delete task to the trash
+  @Post('trash/:id')
+  @HttpCode(HttpStatus.OK)
+  async trashTask(@Param('id') id: string) {
+    console.log(id);
+    await this.taskService.trashTask(id);
+    return {
+      status: true,
+      message: 'Task trashed successfully.',
+    };
   }
 }

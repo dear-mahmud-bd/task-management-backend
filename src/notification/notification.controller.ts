@@ -27,7 +27,7 @@ export class NotificationController {
   // get notification list...
   // @UseGuards(JwtAuthGuard)
   @Get()
-  async getUserNotifications(@Req() req: Request) {
+  async getUserNotifications(@Req() req: any) {
     const userId = req.user?.id;
     return this.notificationService.getUserNotifications(userId as string);
   }
