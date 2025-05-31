@@ -3,11 +3,8 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
-  Param,
-  Delete,
   Req,
   UseGuards,
   Query,
@@ -15,8 +12,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
@@ -25,7 +20,7 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   // get notification list...
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async getUserNotifications(@Req() req: any) {
     const userId = req.user?.id;
@@ -33,16 +28,15 @@ export class NotificationController {
   }
 
   // mark as notification read ...
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch('read')
   async markNotificationRead(
     @Query('isReadType') isReadType: string,
     @Query('id') id: string,
-    @Req() req: Request,
+    @Req() req: any,
     @Res() res: Response,
   ) {
-    const userId = (req.user as any).userId;
-
+    const userId = req.user.id as string;
     try {
       await this.notificationService.markAsRead(userId, isReadType, id);
       return res
@@ -54,33 +48,5 @@ export class NotificationController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ status: false, message: 'Something went wrong' });
     }
-  }
-
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.notificationService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateNotificationDto: UpdateNotificationDto,
-  ) {
-    return this.notificationService.update(+id, updateNotificationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationService.remove(+id);
   }
 }

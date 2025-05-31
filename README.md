@@ -1,85 +1,64 @@
-## Description
+# 🚀 Task Management Backend – NestJS
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is the backend service for the Collaborative Task Management Platform. Built using **NestJS**, **MongoDB**, and **Mongoose** with a modular and scalable architecture.
 
-## Project setup
+---
 
+## 📦 Tech Stack
+
+- **Framework:** [NestJS](https://nestjs.com/)
+- **Database:** [MongoDB](https://www.mongodb.com/)
+- **ORM:** [Mongoose](https://mongoosejs.com/)
+- **Authentication:** JWT (JSON Web Token)
+- **Features:** Modular structure, role-based access, export data 
+
+---
+
+## ⚙️ Backend Setup 
+### Prerequisites
+- Node.js (Latest LTS recommended)
+- npm or yarn installed
+
+### Clone the Repository
 ```bash
-$ npm install
+git clone https://github.com/dear-mahmud-bd/task-management-backend.git
+cd task-management-backend
 ```
 
-## Compile and run the project
-
+### Install Dependencies
 ```bash
-# development
-$ npm run start
-
-
-6833321308124f4f96f47066
-683332ff08124f4f96f47068
-68333b380f4db75bbf2ec75d
-68333b640f4db75bbf2ec75f
-68333ba40f4db75bbf2ec761
-68333c6c0f4db75bbf2ec765
-
-
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### Setup Environment Variables
+Create a `.env` file and configure:
 
-```bash
-# unit tests
-$ npm run test
+```
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/taskdb
+JWT_SECRET=your_jwt_secret
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### Run the Development Server
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Create a admin User with postman (JSON)
 
-## Resources
+with this url `http://localhost:5000/user/register` or `{{env-url}}/user/register`
+```bash
+{
+    "name": "One Admin",
+    "title": "Sr. Developer",
+    "role": "admin",
+    "email": "one@admin.com",
+    "password": "one@admin.com"  // make password same for testing
+}
 
-Check out a few resources that may come in handy when working with NestJS:
+```
+# after that login to the frontend and explore
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+The backend will be available at `http://localhost:5000/`.

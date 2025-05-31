@@ -34,19 +34,20 @@ export class TaskController {
   @Roles('admin')
   async create(@Body() dto: CreateTaskDto, @Req() req: any) {
     const userId = req.user.id as string;
-    console.log(userId);
+    // console.log(userId);
     return await this.taskService.create(dto, userId);
   }
 
   // update a task
   @Put('update/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'developer')
   @HttpCode(200)
   async updateTask(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     try {
-      console.log(id);
       await this.taskService.updateTask(id, updateTaskDto);
       return {
         status: true,
@@ -58,6 +59,7 @@ export class TaskController {
   }
 
   // update task-stage
+  @UseGuards(JwtAuthGuard)
   @Patch('update-stage/:id')
   @HttpCode(200)
   async updateTaskStage(
@@ -80,12 +82,12 @@ export class TaskController {
     @Req() req: any,
   ) {
     const userId = req.user.id as string;
-
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
     }
-
     const { type, activity } = body;
+    // console.log(userId, type, activity);
+
     return this.taskService.postTaskActivity(taskId, userId, type, activity);
   }
 
@@ -109,7 +111,7 @@ export class TaskController {
     };
   }
 
-  // get all tasks (filter without filter)
+  // get all tasks (filter or without filter)
   @UseGuards(JwtAuthGuard)
   @Get('all')
   async getTasks(@Req() req: any, @Query() query: any) {
@@ -121,7 +123,6 @@ export class TaskController {
     if (!user || !user.userId) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
-
     const tasks = await this.taskService.getTasks(user, query);
     return {
       status: true,
@@ -158,6 +159,7 @@ export class TaskController {
   }
 
   // update subtask status...
+  @UseGuards(JwtAuthGuard)
   @Patch('subtasks/status/:taskId/:subTaskId')
   @HttpCode(HttpStatus.OK)
   async updateSubTaskStage(
@@ -176,6 +178,8 @@ export class TaskController {
   }
 
   // delete task to the trash
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post('trash/:id')
   @HttpCode(HttpStatus.OK)
   async trashTask(@Param('id') id: string) {

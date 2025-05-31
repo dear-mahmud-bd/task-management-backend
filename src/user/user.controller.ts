@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Controller,
@@ -35,8 +34,10 @@ export class UserController {
   // Create/Register a user
   @Post('register')
   create(@Body() createUserDto: CreateUserDto) {
+    // console.log(createUserDto);
     return this.userService.create(createUserDto);
   }
+
   // Login a user
   @Post('login')
   @HttpCode(200)
@@ -46,9 +47,19 @@ export class UserController {
     return res.json(result);
   }
 
+  // Logout user...
+  @Post('logout')
+  logoutUser(@Req() req: Request, @Res() res: Response) {
+    res.cookie('token', '', {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    return res.status(200).json({ message: 'Logged out successfully' });
+  }
+
   // Get all teams (all-members)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('admin', 'developer')
   @Get()
   findAll() {
     return this.userService.findAll();
@@ -58,21 +69,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put('profile')
   async updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const { userId, isAdmin } = req.user;
-    const { _id } = updateUserDto;
-
-    const id =
-      isAdmin && userId === _id
-        ? userId
-        : isAdmin && userId !== _id
-          ? _id
-          : userId;
-
+    // console.log(updateUserDto);
     const updatedUser = await this.userService.updateUserProfile(
-      id as string,
+      updateUserDto._id as string,
       updateUserDto,
     );
-
     if (!updatedUser) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -80,7 +81,11 @@ export class UserController {
     return {
       status: true,
       message: 'Profile Updated Successfully.',
-      user: updatedUser,
+      user: {
+        name: updatedUser.name,
+        title: updatedUser.title,
+        role: updatedUser.role,
+      },
     };
   }
 
@@ -94,7 +99,7 @@ export class UserController {
 
   // Activate User Profile...
   @UseGuards(JwtAuthGuard) // optional
-  @Patch(':id/activate')
+  @Patch('activate/:id')
   async activateUser(@Param('id') id: string, @Body() dto: ActivateUserDto) {
     return await this.userService.activateUserProfile(id, dto);
   }
